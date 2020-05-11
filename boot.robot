@@ -16,22 +16,13 @@ ${PROMPT}         pi@raspberrypi:
 *** Test cases ***
 System Boots
     [Timeout]     3m
-    Read Until Single    Booting Linux on physical CPU 0x0
-    Read Until Single    Mounted root
-    Read Until Single    Raspbian
-    Read Until Single    ${LOGIN_STR}
-    Write Data           \n
-    Read Until Single    ${LOGIN_STR}
-    Write Data           ${USERNAME}\n
-    Read Until Single    Password:
-    Write Data           ${PASSWORD}\n
-    ${read} =            Read Until Single    ${PROMPT}
-    Should Contain       ${read}              ${PROMPT}
+    Check Linux Boots
+    Login To Linux
 
 Verify RPI IP Address
     [Timeout]     30s
-    ${read} =          Run Shell Command    hostname -I
-    Should Be Equal    ${read}    ${RPI_IP}
+    Get Host IP
+    RPI IP Address Is Correct
 
 *** Keywords ***
 Open Serial Port
@@ -61,3 +52,25 @@ Run Shell Command
     ${stripped} =    Strip String    ${words}[0]
     Log              ${stripped}    console=yes
     [Return]       ${stripped}
+
+Check Linux Boots
+    Read Until Single    Booting Linux on physical CPU 0x0
+    Read Until Single    Mounted root
+    Read Until Single    Raspbian
+    Read Until Single    ${LOGIN_STR}
+
+Login To Linux
+    Write Data           \n
+    Read Until Single    ${LOGIN_STR}
+    Write Data           ${USERNAME}\n
+    Read Until Single    Password:
+    Write Data           ${PASSWORD}\n
+    ${read} =            Read Until Single    ${PROMPT}
+    Should Contain       ${read}              ${PROMPT}
+
+Get Host IP
+    ${HOST_IP} =         Run Shell Command    hostname -I
+    Set Test Variable    ${HOST_IP}
+
+RPI IP Address Is Correct
+    Should Be Equal    ${HOST_IP}    ${RPI_IP}
