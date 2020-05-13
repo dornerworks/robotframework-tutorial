@@ -1,6 +1,7 @@
 *** Settings ***
 Library           SerialLibrary    encoding=ascii
 Library           String
+Resource          resource.robot
 Force Tags        boot    has-serial
 Suite Setup       Open Serial Port
 Suite Teardown    Close Serial Port
@@ -8,9 +9,6 @@ Suite Teardown    Close Serial Port
 *** Variables ***
 ${LOGIN_STR}      raspberrypi login:
 ${SERIAL_PORT}    /dev/ttyUSB0
-${RPI_IP}         10.0.1.22
-${USERNAME}       pi
-${PASSWORD}       raspberry
 ${PROMPT}         pi@raspberrypi:
 
 *** Test cases ***
@@ -38,19 +36,19 @@ Close Serial Port
 
 Read Until Single
     [Arguments]    ${expected}
-    ${read} =         Read Until    terminator=${expected}
+    ${read} =         SerialLibrary.Read Until    terminator=${expected}
     Should Contain    ${read}    ${expected}
     Log               ${read}    console=yes
     [Return]       ${read}
 
 Run Shell Command
     [Arguments]    ${command}
-    Write Data       ${command}\n
-    Read Until       terminator=${command}
-    ${result} =      Read Until    terminator=${PROMPT}
-    @{words} =       Split String From Right     ${result}    \n    max_split=1
-    ${stripped} =    Strip String    ${words}[0]
-    Log              ${stripped}    console=yes
+    SerialLibrary.Write Data    ${command}\n
+    SerialLibrary.Read Until    terminator=${command}
+    ${result} =                 SerialLibrary.Read Until    terminator=${PROMPT}
+    @{words} =                  Split String From Right     ${result}    \n    max_split=1
+    ${stripped} =               Strip String    ${words}[0]
+    Log                         ${stripped}    console=yes
     [Return]       ${stripped}
 
 Check Linux Boots
@@ -60,13 +58,13 @@ Check Linux Boots
     Read Until Single    ${LOGIN_STR}
 
 Login To Linux
-    Write Data           \n
-    Read Until Single    ${LOGIN_STR}
-    Write Data           ${USERNAME}\n
-    Read Until Single    Password:
-    Write Data           ${PASSWORD}\n
-    ${read} =            Read Until Single    ${PROMPT}
-    Should Contain       ${read}              ${PROMPT}
+    SerialLibrary.Write Data    \n
+    Read Until Single           ${LOGIN_STR}
+    SerialLibrary.Write Data    ${USERNAME}\n
+    Read Until Single           Password:
+    SerialLibrary.Write Data    ${PASSWORD}\n
+    ${read} =                   Read Until Single    ${PROMPT}
+    Should Contain              ${read}              ${PROMPT}
 
 Get Host IP
     ${HOST_IP} =         Run Shell Command    hostname -I

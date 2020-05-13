@@ -1,14 +1,12 @@
 *** Settings ***
 Library           SSHLibrary
 Library           Process
+Resource          resource.robot
 Force Tags        webserver
 Suite Setup       Open Connection And Log In
 Suite Teardown    Close All Connections
 
 *** Variables ***
-${RPI_IP}         10.0.1.22
-${USERNAME}       pi
-${PASSWORD}       raspberry
 
 *** Test cases ***
 Verify Hostname
@@ -23,10 +21,6 @@ Verify Nginx
     Check Nginx Output
 
 *** Keywords ***
-Open Connection And Log In
-    Open Connection     ${RPI_IP}
-    Login    ${USERNAME}    ${PASSWORD}
-
 Get Hostname
     ${HOSTNAME} =      Execute Command    hostname
     Set Test Variable    ${HOSTNAME}

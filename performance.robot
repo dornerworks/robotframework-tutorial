@@ -1,14 +1,12 @@
 *** Settings ***
 Library           SSHLibrary
 Library           String
+Resource          resource.robot
 Force Tags        perf
 Suite Setup       Open Connection And Log In
 Suite Teardown    Close All Connections
 
 *** Variables ***
-${RPI_IP}               10.0.1.22
-${USERNAME}             pi
-${PASSWORD}             raspberry
 ${EXPECTED_AVG_TIME}    35.00
 ${EXPECTED_MAX_TIME}    40.00
 ${PERF_TEST_TIME}       10s
@@ -46,7 +44,3 @@ Get Per Request Val
     ${str} =    Get Regexp Matches    ${str}    ([\\d\\.]*)ms    1
     ${val} =    Convert To Number    ${str[0]}
     [Return]    ${val}
-
-Open Connection And Log In
-    Open Connection     ${RPI_IP}
-    Login               ${USERNAME}    ${PASSWORD}
